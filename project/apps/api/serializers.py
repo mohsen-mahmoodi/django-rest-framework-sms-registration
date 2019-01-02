@@ -21,7 +21,7 @@ logger = logging.getLogger('achare.api')
 class UserRegistrationSerializer(serializers.Serializer):
     default_error_messages = {
         'already_registered': _('The user is already registered'),
-        'cannot_create_user': _('Unable to create account.')
+        'cannot_create_user': _('Unable to create account')
     }
 
     mobile = PhoneNumberField()
@@ -91,7 +91,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class PasswordSerializer(serializers.Serializer):
     default_error_messages = {
-        'password_mismatch': _('The two password fields didn\'t match.'),
+        'password_mismatch': _('The two password fields didn\'t match'),
+        'incomplete_profile': _('Profile of user is not completed')
     }
 
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
@@ -106,6 +107,8 @@ class PasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         data = super(PasswordSerializer, self).validate(data)
+        if not self.instance.first_name or not self.instance.last_name:
+            self.fail('incomplete_profile')
         if data['password'] != data['password_confirm']:
             self.fail('password_mismatch')
         return data

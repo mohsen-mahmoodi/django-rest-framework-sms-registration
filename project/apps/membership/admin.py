@@ -31,7 +31,7 @@ class UserAdmin(AuthUserAdmin):
     search_fields = AuthUserAdmin.search_fields + ('mobile',)
     list_filter = AuthUserAdmin.list_filter + ('is_verified', 'is_registered')
     readonly_fields = ('pin', 'date_joined', 'last_login', 'is_registered',
-                       'is_verified')
+                       'is_verified', 'last_generated')
 
 
 admin.site.register(User, UserAdmin)
