@@ -75,7 +75,7 @@ class VerificationCodeSerializer(serializers.Serializer):
         if self.user.pin == User.INVALID_PIN:
             # The user is validated already or verification requested before calling registration
             self.fail('invalid_pin')
-        if self.user.pin == User.INVALID_PIN or data['code'] != self.user.pin:
+        if data['code'] != self.user.pin:
             self.fail('invalid_code')
         if self.user.is_registered:
             # prevent user from logging in using registration process
