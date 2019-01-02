@@ -1,0 +1,267 @@
+{
+	"info": {
+		"_postman_id": "cc8f2428-18cd-4fcd-8382-53b8be347b46",
+		"name": "Achare",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"mobile\": \"+989128046425\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/register/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register",
+						""
+					]
+				},
+				"description": "Registers a user using mobile e.g. +989128046422\n\non successful registration returns verification TOTP."
+			},
+			"response": []
+		},
+		{
+			"name": "Register Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"mobile\": \"+989128046425\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/register/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register",
+						""
+					]
+				},
+				"description": "Registers a user using mobile e.g. +989128046422\n\non successful registration returns verification TOTP."
+			},
+			"response": []
+		},
+		{
+			"name": "Verify",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"code\": \"515970055\",\n    \"signature\": \"22:1geSbf:W-khJpvBDkXMlycKPi2flpjkGI4\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/verify/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"verify",
+						""
+					]
+				},
+				"description": "verifies the user registration provided:\n1. The code send to the user using SMS\n2. The TOTP returned from the registration endpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Profile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTQ2MzU0MDMzLCJqdGkiOiI1NTFlNjFjZjFmMGI0ODM4OWQ0YmZjOGNhM2YwMjJiNSIsInVzZXJfaWQiOjE5fQ.P5lJ1T0LEBoJgnIoz-OwfjAXDYBmOyD6FsIwxfjWtRk",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Mohsen\",\n\t\"last_name\": \"Mahmoodi\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/profile/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"profile",
+						""
+					]
+				},
+				"description": "Sets the user profile details e.g. first_name & last_name.\nAuthorization header from the verificaion step required:\n\nAuthorization=Bearer <Access-Token>"
+			},
+			"response": []
+		},
+		{
+			"name": "Set Password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTQ2MzgzMzQ3LCJqdGkiOiI5ZmI5Y2RhYzEwYWU0NjUyODE1MmQwMDAxNTY2NzAxMyIsInVzZXJfaWQiOjIyfQ.0-9SyY4DIfDQtuE0WnxBBJEOYV15C2qPbCPBO3BsPFg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "password_confirm",
+							"value": "admin%^&@",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "admin%^&@",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/password/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"password",
+						""
+					]
+				},
+				"description": "Sets the users password. Authorization header from the verificaion step required:\n\nAuthorization=Bearer <Access-Token>"
+			},
+			"response": []
+		},
+		{
+			"name": "Login (Get Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"mobile\": \"+989128046423\",\n\t\"password\": \"admin%^&@\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/auth/token/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"token",
+						""
+					]
+				},
+				"description": "Returns access_token and refresh_token providing mobile and password of a registered user."
+			},
+			"response": []
+		},
+		{
+			"name": "Services (Sample EndPoint to test login/register)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTQ2MzgzMzQ3LCJqdGkiOiI5ZmI5Y2RhYzEwYWU0NjUyODE1MmQwMDAxNTY2NzAxMyIsInVzZXJfaWQiOjIyfQ.0-9SyY4DIfDQtuE0WnxBBJEOYV15C2qPbCPBO3BsPFg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/services/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"services",
+						""
+					]
+				},
+				"description": "Returns test data if the user is registered and logged in."
+			},
+			"response": []
+		}
+	]
+}
