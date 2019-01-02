@@ -71,6 +71,8 @@ class RegistrationView(APIView):
 
 
 class VerificationView(APIView):
+    throttle_classes = [throttling.VerificationRateThrottle]
+
     permission_classes = (
         permissions.AllowAny,
     )

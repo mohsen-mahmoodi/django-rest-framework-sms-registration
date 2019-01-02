@@ -232,6 +232,8 @@ class Common(Configuration):
 
     REGISTER_ATTEMPTS_LIMIT = values.IntegerValue(3, environ_prefix='ACHARE')
 
+    VERIFY_ATTEMPTS_LIMIT = values.IntegerValue(10, environ_prefix='ACHARE')
+
     REGISTRATION_BAN_MINUTES = values.IntegerValue(30, environ_prefix='ACHARE')
 
 

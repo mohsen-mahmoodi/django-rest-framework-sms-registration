@@ -1,4 +1,4 @@
-from rest_framework.throttling import SimpleRateThrottle
+from rest_framework.throttling import SimpleRateThrottle, AnonRateThrottle
 from django.conf import settings
 
 
@@ -32,9 +32,9 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
         if self.key is None:
             return True
         self.history = self.cache.get(self.key, {
-                                                'banned': False,
-                                                'banned_time': None,
-                                                'requests': []})
+            'banned': False,
+            'banned_time': None,
+            'requests': []})
         self.now = self.timer()
 
         requests = self.history['requests']
@@ -101,7 +101,7 @@ class RegistererMobileRateThrottle(BaseRegisterationRateThrottle):
     """
         Limit calling the registration API with a specific mobile number.
     """
-    scope = 'register'
+    scope = 'registration.mobile'
 
     def get_cache_key(self, request, view):
         identity = request.data.get('mobile', None)
@@ -119,7 +119,7 @@ class RegistererIPRateThrottle(BaseRegisterationRateThrottle):
     """
         Limit calling the registration API with a specific IP.
     """
-    scope = 'registration'
+    scope = 'registration.ip'
 
     def get_cache_key(self, request, view):
         if request.user.is_authenticated:
@@ -128,4 +128,26 @@ class RegistererIPRateThrottle(BaseRegisterationRateThrottle):
         return self.cache_format % {
             'scope': self.scope,
             'ident': self.get_ident(request)
+        }
+
+
+class VerificationRateThrottle(AnonRateThrottle):
+    """
+        Limit calling the verification API with a specific signature.
+    """
+    scope = 'verification'
+    rate = '#/#'
+
+    def parse_rate(self, rate):
+        return settings.VERIFY_ATTEMPTS_LIMIT, settings.REGISTRATION_SEND_SMS_INTERVAL
+
+    def get_cache_key(self, request, view):
+        identity = request.data.get('signature', None)
+
+        if identity is None:
+            return None
+
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': identity
         }
