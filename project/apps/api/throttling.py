@@ -2,7 +2,7 @@ from rest_framework.throttling import SimpleRateThrottle, AnonRateThrottle
 from django.conf import settings
 
 
-class BaseRegisterationRateThrottle(SimpleRateThrottle):
+class BaseRegistrationRateThrottle(SimpleRateThrottle):
     """
          Limit calling the registration API with a specific mobile/ip according to following constraints:
 
@@ -97,7 +97,7 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
         return remaining_duration
 
 
-class RegistererMobileRateThrottle(BaseRegisterationRateThrottle):
+class RegistererMobileRateThrottle(BaseRegistrationRateThrottle):
     """
         Limit calling the registration API with a specific mobile number.
     """
@@ -115,7 +115,7 @@ class RegistererMobileRateThrottle(BaseRegisterationRateThrottle):
         }
 
 
-class RegistererIPRateThrottle(BaseRegisterationRateThrottle):
+class RegistererIPRateThrottle(BaseRegistrationRateThrottle):
     """
         Limit calling the registration API with a specific IP.
     """
