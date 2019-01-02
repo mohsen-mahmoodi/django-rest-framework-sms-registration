@@ -1,10 +1,10 @@
-from rest_framework.throttling import AnonRateThrottle, SimpleRateThrottle
+from rest_framework.throttling import SimpleRateThrottle
 from django.conf import settings
 
 
 class BaseRegisterationRateThrottle(SimpleRateThrottle):
     """
-         Limit calling the registration API with a specific mobile number according to following constraints:
+         Limit calling the registration API with a specific mobile/ip according to following constraints:
 
          1. interval between each call: settings.REGISTRATION_SEND_SMS_INTERVAL seconds e.g. 1 call per 2 minu
          2. only settings.REGISTER_ATTEMPTS_LIMIT attempts can be done in every
@@ -13,26 +13,12 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
           REGISTER_ATTEMPTS_LIMIT seconds, banes the user for settings.REGISTRATION_BAN_MINUTES minutes
 
      """
-    scope = 'registration'
-    default_history = {
-        'banned': False,
-        'banned_time': None,
-        'requests': []
-    }
 
     def __init__(self):
         self.num_requests = settings.REGISTER_ATTEMPTS_LIMIT
         self.interval = settings.REGISTRATION_SEND_SMS_INTERVAL
         self.banning_duration = settings.REGISTRATION_BAN_MINUTES * 60
         self.duration = self.num_requests * self.interval
-
-    def read_history(self):
-        history = self.cache.get_many(self.key, self.default_history)
-        return history.values()
-
-    def write_history(self, timeout):
-        self.cache.set(self.key, self.history, timeout)
-
 
     def allow_request(self, request, view):
         """
@@ -43,7 +29,12 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
         """
 
         self.key = self.get_cache_key(request, view)
-        self.history = self.cache.get(self.key, self.default_history)
+        if self.key is None:
+            return True
+        self.history = self.cache.get(self.key, {
+                                                'banned': False,
+                                                'banned_time': None,
+                                                'requests': []})
         self.now = self.timer()
 
         requests = self.history['requests']
@@ -88,7 +79,6 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
         """
         self.history['requests'] = [self.now] + self.history['requests']
         self.history['banned'] = False
-        print(self.history)
         self.cache.set(self.key, self.history, self.duration)
         return True
 
@@ -109,19 +99,15 @@ class BaseRegisterationRateThrottle(SimpleRateThrottle):
 
 class RegistererMobileRateThrottle(BaseRegisterationRateThrottle):
     """
-        Limit calling the register API with a specific IP to one call per
-        settings.REGISTRATION_SEND_SMS_INTERVAL seconds e.g. the default is 1 call per 2 minutes.
+        Limit calling the registration API with a specific mobile number.
     """
-    scope = 'registerer.mobile'
-
-    def parse_rate(self, rate):
-        return 1, settings.REGISTRATION_SEND_SMS_INTERVAL
+    scope = 'register'
 
     def get_cache_key(self, request, view):
         identity = request.data.get('mobile', None)
 
         if identity is None:
-            return True
+            return None
 
         return self.cache_format % {
             'scope': self.scope,
@@ -131,10 +117,9 @@ class RegistererMobileRateThrottle(BaseRegisterationRateThrottle):
 
 class RegistererIPRateThrottle(BaseRegisterationRateThrottle):
     """
-        Limit calling the register API with a specific IP to one call per
-        settings.REGISTRATION_SEND_SMS_INTERVAL seconds e.g. the default is 1 call per 2 minutes.
+        Limit calling the registration API with a specific IP.
     """
-    scope = 'registerer.ip'
+    scope = 'registration'
 
     def get_cache_key(self, request, view):
         if request.user.is_authenticated:

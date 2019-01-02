@@ -4,7 +4,6 @@ import logging
 from django.conf import settings
 from six import text_type
 
-from django.db.models import F
 from django.utils import timezone
 
 from rest_framework.response import Response
@@ -35,10 +34,7 @@ def api_exception_handler(exc, context):
     return response
 
 
-class RegistrationView(generics.GenericAPIView):
-    serializer_class = serializers.UserRegistrationSerializer
-    queryset = User.objects.all()
-
+class RegistrationView(APIView):
     throttle_classes = [throttling.RegistererMobileRateThrottle]
 
     permission_classes = (
@@ -52,7 +48,7 @@ class RegistrationView(generics.GenericAPIView):
             # worth considering if the App provides such a call.
             raise exceptions.UserLoggedIn()
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = serializers.UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
@@ -61,39 +57,16 @@ class RegistrationView(generics.GenericAPIView):
                 minutes=settings.REGISTRATION_PIN_EXPIRATION_MINUTES):
             user.pin = utils.generate_pin()
             user.last_generated = timezone.now()
+            user.save(update_fields=['pin', 'last_generated'])
 
-        user.number_of_tries = F('number_of_tries') + 1
-        user.save()
         self.send_verification_sms(user)
-        return Response(self.get_serializer(user).data, status=status.HTTP_200_OK)
-
-        # reset_limit = timezone.now() - datetime.timedelta(minutes=1)
-        #
-        # if user.last_try < reset_limit:
-        #     # The reset time passed from last attempt, generate new verification code and reset
-        #     # number of tries
-        #     user.number_of_tries = 1
-        #     user.pin = utils.generate_pin()
-        #     user.save(update_fields=['number_of_tries', 'last_try', 'pin'])
-        #     self.send_verification_sms(user)
-        #     return Response(self.get_serializer(user).data, status=status.HTTP_200_OK)
-        #
-        # if user.number_of_tries < 3:
-        #         user.number_of_tries = F('number_of_tries') + 1
-        #         user.save(update_fields=['number_of_tries', 'last_try'])
-        #         self.send_verification_sms(user)
-        #         return Response(self.get_serializer(user).data, status=status.HTTP_200_OK)
-        # else:
-        #     # Too many failed attempts before reset interval get passed
-        #     raise exceptions.UserBanned()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def send_verification_sms(self, user):
         print('SMS send to user with code: %s' % user.pin)
 
 
-class VerificationView(generics.GenericAPIView):
-    serializer_class = serializers.VerificationCodeSerializer
-    queryset = User.objects.all()
+class VerificationView(APIView):
     permission_classes = (
         permissions.AllowAny,
     )
@@ -106,43 +79,38 @@ class VerificationView(generics.GenericAPIView):
         }
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = serializers.VerificationCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.user
         if not user.is_verified:
             user.is_verified = True
-            user.number_of_tries = 0
             # activate the user only in first verification, after that the user can't activate herself
             user.is_active = True
             user.pin = User.INVALID_PIN
-            user.save(update_fields=['is_verified', 'number_of_tries', 'is_active', 'pin'])
+            user.save(update_fields=['is_verified', 'is_active', 'pin'])
 
         return Response(self.get_token(user), status=status.HTTP_200_OK)
 
 
-class ProfileView(generics.UpdateAPIView):
-    serializer_class = serializers.ProfileSerializer
-    queryset = User.objects.all()
+class ProfileView(APIView):
     permission_classes = (
         permissions.IsAuthenticated,
     )
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(instance=request.user, data=request.data)
+        serializer = serializers.ProfileSerializer(instance=request.user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class PasswordView(generics.GenericAPIView):
-    serializer_class = serializers.PasswordSerializer
-    queryset = User.objects.all()
+class PasswordView(APIView):
     permission_classes = (
         permissions.IsAuthenticated,
     )
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(instance=request.user, data=request.data)
+        serializer = serializers.PasswordSerializer(instance=request.user, data=request.data)
         serializer.is_valid(raise_exception=True)
         request.user.set_password(serializer.validated_data['password'])
         request.user.is_registered = True

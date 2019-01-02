@@ -45,8 +45,7 @@ class UserRegistrationSerializer(serializers.Serializer):
             return self.user
         try:
             with transaction.atomic():
-                user = User.objects.create(mobile=validated_data['mobile'], pin=utils.generate_pin(), number_of_tries=0,
-                                           is_active=False)
+                user = User.objects.create(mobile=validated_data['mobile'], pin=utils.generate_pin(), is_active=False)
         except IntegrityError:
             self.fail('cannot_create_user')
         return user

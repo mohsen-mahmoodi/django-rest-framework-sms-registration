@@ -202,8 +202,8 @@ class Common(Configuration):
     }
 
     SIMPLE_JWT = {
-        'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
-        'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+        'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+        'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
         'ROTATE_REFRESH_TOKENS': False,
         'BLACKLIST_AFTER_ROTATION': True,
 
@@ -228,11 +228,11 @@ class Common(Configuration):
 
     VALID_MOBILE_COUNTRY_CODES = values.ListValue(['98'], environ_prefix='ACHARE')
 
-    REGISTRATION_SEND_SMS_INTERVAL = values.IntegerValue(5, environ_prefix='ACHARE')
+    REGISTRATION_SEND_SMS_INTERVAL = values.IntegerValue(120, environ_prefix='ACHARE')
 
     REGISTER_ATTEMPTS_LIMIT = values.IntegerValue(3, environ_prefix='ACHARE')
 
-    REGISTRATION_BAN_MINUTES = values.IntegerValue(1, environ_prefix='ACHARE')
+    REGISTRATION_BAN_MINUTES = values.IntegerValue(30, environ_prefix='ACHARE')
 
 
 class Development(Common):
